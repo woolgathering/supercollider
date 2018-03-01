@@ -128,6 +128,7 @@ else()
     message(STATUS "HID support disabled")
 endif()
 
+# portmidi
 if(WIN32)
   add_library(portmidi portmidi/pm_common/pminternal.h
                        portmidi/pm_common/pmutil.c
@@ -145,4 +146,10 @@ if(WIN32)
 
   target_link_libraries(portmidi PRIVATE winmm.lib)
   target_compile_definitions(portmidi INTERFACE HAVE_PORTMIDI)
+endif()
+
+# Ableton link
+if (SC_ABLETON)
+	message(STATUS "Compiling with Ableton Link support")
+	include(link/AbletonLinkConfig.cmake)
 endif()

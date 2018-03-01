@@ -270,11 +270,8 @@ if (NOT WIN32)
 endif()
 
 if (SC_ABLETON)
-	message(STATUS "Compiling with Ableton Link support")
-	include(../external_libraries/link/AbletonLinkConfig.cmake)
 	target_link_libraries(libsclang Ableton::Link)
-
-	add_definitions(-DSC_ABLETON_LINK)
+	target_compile_definitions(libsclang PUBLIC SC_ABLETON_LINK)
 endif()
 
 ## external libraries
