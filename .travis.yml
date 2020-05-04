@@ -70,7 +70,7 @@ deploy:
    local-dir: $HOME/artifacts
    upload-dir: $S3_BUILDS_LOCATION
    region: us-west-2
-   skip_cleanup: true
+   cleanup: false
    endpoint: s3-us-west-2.amazonaws.com
    acl: public_read
    on:
@@ -81,7 +81,7 @@ deploy:
    api_key: $GITHUB_KEY
    file: $HOME/SuperCollider-$VERSION_TO_BUILD-macOS.zip
    prerelease: true
-   skip_cleanup: true
+   cleanup: false
    on:
      condition: $TRAVIS_OS_NAME = osx && ! -z $GITHUB_KEY
      tags: true
