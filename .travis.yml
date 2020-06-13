@@ -3,7 +3,7 @@ language: cpp
 matrix:
   fast_finish: true
   include:
-    # Linux jobs: gcc {6, 7, 8, 9, 9-shared-libscsynth, 9-minus-gui-and-lint, [9-using-syslibs]}
+    # Linux jobs: gcc {6, 7, 8, 9, 10, 9-shared-libscsynth, 9-minus-gui-and-lint, [9-using-syslibs]}
     #    clang {4, 5, 6, 7, 8, 9, 10}
     # gcc 6, clang 4 are on xenial, all others on bionic
     #
@@ -73,6 +73,23 @@ matrix:
       env:
         - JOB_NAME="bionic gcc9"
         - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+        - QT=true
+        - DO_LINT=false
+        - USE_SYSLIBS=false
+        - SHARED_LIBSCSYNTH=false
+
+    # Ubuntu 18.04 gcc10
+    - os: linux
+      dist: bionic
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-10
+      env:
+        - JOB_NAME="bionic gcc10"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
         - QT=true
         - DO_LINT=false
         - USE_SYSLIBS=false
