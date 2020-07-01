@@ -3,12 +3,16 @@ language: cpp
 matrix:
   fast_finish: true
   include:
+    # Summary:
+    #
     # Linux jobs: gcc {6, 7, 8, 9, 10, 9-shared-libscsynth, 9-minus-gui-and-lint, [9-using-syslibs]}
     #    clang {4, 5, 6, 7, 8, 9, 10}
     # gcc 6, clang 4 are on xenial, all others on bionic
     #
     # macOS jobs: xcode {10.3, 11.3}, xcode 11.3 shared-libscsynth
     # both on Mojave 10.14
+    #
+    # macOS is deployed from xcode 11.3 job
 
     # Ubuntu 16.04 gcc6
     - os: linux
@@ -250,6 +254,7 @@ matrix:
         - DO_LINT=false
         - USE_SYSLIBS=false
         - SHARED_LIBSCSYNTH=false
+        - DO_DEPLOY=YES # presence option
 
     # macOS 10.14 xcode11 use_syslibs
     - os: osx
@@ -297,7 +302,8 @@ before_script:
 script:
  - $TRAVIS_BUILD_DIR/.travis/script-$TRAVIS_OS_NAME.sh
  - $TRAVIS_BUILD_DIR/.travis/test.sh
- - if [[ $TRAVIS_OS_NAME == osx ]]; then $TRAVIS_BUILD_DIR/.travis/package-osx.sh; fi
+# only on osx for now
+ - if [[ ! -z "$DO_DEPLOY" ]]; then $TRAVIS_BUILD_DIR/.travis/package-$TRAVIS_OS_NAME.sh; fi
 
 before_deploy:
  # required for github releases
@@ -324,7 +330,7 @@ deploy:
    endpoint: s3-us-west-2.amazonaws.com
    acl: public_read
    on:
-     condition: $TRAVIS_OS_NAME = osx && ! -z $AWS_KEY && ! -z $AWS_SECRET
+     condition: $TRAVIS_OS_NAME = osx && ! -z $AWS_KEY && ! -z $AWS_SECRET && ! -z $DO_DEPLOY
      all_branches: true
  # github releases - only tags
  - provider: releases
@@ -333,7 +339,7 @@ deploy:
    prerelease: true
    cleanup: false
    on:
-     condition: $TRAVIS_OS_NAME = osx && ! -z $GITHUB_KEY
+     condition: $TRAVIS_OS_NAME = osx && ! -z $GITHUB_KEY && ! -z $DO_DEPLOY
      tags: true
      all_branches: true
 
