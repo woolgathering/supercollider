@@ -215,6 +215,7 @@ void SpecPcile_next(SpecPcile* unit, int inNumSamples) {
 
     // Percentile value as a fraction. eg: 0.5 == 50-percentile (median).
     float fraction = ZIN0(1);
+    bool binout = ZIN0(3); // if true, output the bin number instead of freq
     bool interpolate = unit->m_interpolate;
 
     // The magnitudes in *p will be converted to cumulative sum values and stored in *q temporarily
@@ -239,15 +240,28 @@ void SpecPcile_next(SpecPcile* unit, int inNumSamples) {
     float bestposition = 0; // May be linear-interpolated between bins, but not implemented yet
                             // NB If nothing beats the target (e.g. if fraction is -1) zero Hz is returned
     float binpos;
+    float alpha, beta, gamma; // for bin number interpolation
     for (int i = 0; i < numbins; ++i) {
         // Print("Testing %g, at position %i", q->bin[i].real, i);
         if (!(q[i] < target)) { // this is a ">=" comparison, done more efficiently as "!(<)"
-            if (interpolate && i != 0) {
-                binpos = ((float)i) + 1.f - (q[i] - target) / (q[i] - q[i - 1]);
+            // output the bin number instead of freq
+            if (binout) {
+                if (interpolate && i != 0) {
+                  alpha = q[i-1] - q[i-2];
+                  beta = q[i] - q[i-1];
+                  gamma = q[i+1] - q[i];
+                  bestposition = i + 0.5*((alpha-gamma)/(alpha - 2*beta + gamma)); // parabolic interpolation of bins
+                } else {
+                  bestposition = i; // output bin directly
+                }
             } else {
-                binpos = ((float)i) + 1.f;
+                if (interpolate && i != 0) {
+                  binpos = ((float)i) + 1.f - (q[i] - target) / (q[i] - q[i - 1]);
+                } else {
+                  binpos = ((float)i) + 1.f;
+                }
+                bestposition = binpos * unit->m_halfnyq_over_numbinsp2;
             }
-            bestposition = binpos * unit->m_halfnyq_over_numbinsp2;
             // Print("Target %g beaten by %g (at position %i), equating to freq %g\n",
             //				target, p->bin[i].real, i, bestposition);
             break;
